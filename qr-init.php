@@ -1,8 +1,5 @@
 <?php
 
-// error_reporting(0);
-// ini_set('display_errors', 1);
-
 class QR {
 
   public function __construct() {
@@ -106,7 +103,6 @@ class QR {
         'active' => true,
         'description' => '',
       ));
-     
       endif;
   }
 
@@ -137,7 +133,6 @@ class QR {
   }
 
   public function render_page() {
-
     //$file = file_get_contents(plugin_dir_url(__FILE__).'template/std.php');
     $file= $this->get_skeleton();
     $template_tags = array(

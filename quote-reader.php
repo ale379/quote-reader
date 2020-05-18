@@ -8,7 +8,6 @@
  */
 
 /* define std stuff */
-
 defined( 'ABSPATH' ) or die( 'Bye' );
 
 if(!class_exists('QR')) require_once 'qr-init.php';
@@ -26,7 +25,6 @@ function quotes() {
   global $wpdb;
   $table_name = $wpdb->prefix . "quotereader";
   $retrieve_data = $wpdb->get_results( "SELECT * FROM $table_name" );
-
   return $retrieve_data;
 }
 
@@ -103,13 +101,3 @@ function installer(){
   }
 }
 register_activation_hook( __FILE__, 'installer' );
-
-
-
-/*function filter($by) {
-  global $wpdb;
-  $table_name = $wpdb->prefix . "quotereader";
-  $retrieve_data = $wpdb->get_results( "SELECT DISTINCT $by FROM $table_name" );
-
-  return $retrieve_data;
-}*/
