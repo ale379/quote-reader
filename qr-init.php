@@ -7,21 +7,20 @@ class QR {
     //add_action( 'admin_init', [ $this, 'backend_settings_page' ] );
     add_action( 'admin_init', [$this, 'add_acf_variables'] );
     add_filter( 'acf/settings/show_admin', '__return_false' ); //hide ACF once setup is completed
-
-    add_shortcode('quotes', 'get_quotes'); //add shortcode to display quotes
     
     // add ACF to quickly handle custom field
     include_once( plugin_dir_path( __FILE__ ) . 'vendor/advanced-custom-fields/acf.php' );
     add_filter( 'acf/settings/path', array( $this, 'update_acf_settings_path' ) );
     add_filter( 'acf/settings/dir', array( $this, 'update_acf_settings_dir' ) );
 
+    // handle custom field
     add_filter('acf/location/rule_types', array( $this, 'acf_location_rules_types') );
     add_filter('acf/location/rule_values/options_page', array( $this, 'acf_location_rule_values_option_page') );
     $this->setup_options();
 
     /* enable preview */
     if(isset($_GET['qr_preview']) && $_GET['qr_preview'] == 'true'){
-      add_action( 'template_redirect', array(&$this,'render_page'));
+      add_action( 'template_redirect', array($this,'render_page'));
     }
   }
 
@@ -133,41 +132,32 @@ class QR {
   }
 
   public function render_page() {
-    //$file = file_get_contents(plugin_dir_url(__FILE__).'template/std.php');
+    $this->get_style();
+    $this->get_script();
+    get_header();
     $file= $this->get_skeleton();
     $template_tags = array(
-      '{Title}' => get_field( 'custom_title', 'option' ),
-      '{Style}' => $this->get_style(),
-      '{HTML}' => $this->get_quotes(),
-      '{Script}' => $this->get_script(),
+      '{HTML}' => $this->get_quotes_container(),
     );
     echo strtr($file, $template_tags);
-    exit();
+    get_footer();
+    exit;
+  }
+
+  public function render_plugin() {
+    $this->get_style();
+    $this->get_script();
+    echo $this->get_quotes_container();
   }
 
   public function get_skeleton() {
-    $html = '<!DOCTYPE html>
-    <html class="no-js seed-csp4" lang="en">
-    <head>
-      <meta charset="utf-8">
-      <title>{Title}</title>
-      {Style}
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-      <div class="container">
+    $html = '<div class="preview-container"><div class="container">
         {HTML}
-      </div>
-    </body>
-    {Script}
-    </html>';
+      </div></div>';
     return $html;
   }
   
-  public function get_quotes() {
-    /*global $wpdb;
-    $table_name = $wpdb->prefix . "quotereader";
-    $retrieve_data = $wpdb->get_results( "SELECT * FROM $table_name" );*/
+  public function get_quotes_container() {
     ob_start();
     ?>
 <div class="title-container">
@@ -214,16 +204,14 @@ class QR {
     }
 
   public function get_style() {
-    $code = '<link rel="stylesheet" href="' .plugin_dir_url(__FILE__).'template/bootstrap.min.css">';
-    $code .= '<link rel="stylesheet" href="' .plugin_dir_url(__FILE__).'template/style.css">';
-    return $code;
+    wp_enqueue_style('quote-reader-bs', plugin_dir_url(__FILE__).'template/bootstrap.min.css', array());
+    wp_enqueue_style('quote-reader-custom', plugin_dir_url(__FILE__).'template/style.css', array( 'quote-reader-bs' ));
   }
 
   public function get_script() {
-    $code = '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>';
-    $code .= '<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>';
-    $code .= '<script src="' .plugin_dir_url(__FILE__).'template/script.js"></script>';
-    return $code;
+    wp_enqueue_script('quote-reader-bs', 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js');
+    wp_enqueue_script('quote-reader-masonry', 'https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js');
+    wp_enqueue_script('quote-reader-custom', plugin_dir_url(__FILE__).'template/script.js');
   }
 }
 ?>

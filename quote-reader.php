@@ -11,7 +11,8 @@
 defined( 'ABSPATH' ) or die( 'Bye' );
 
 if(!class_exists('QR')) require_once 'qr-init.php';
-new QR();
+$qr = new QR();
+add_shortcode('show-quotes', array( $qr,'render_plugin') ); //add shortcode to display quotes
 
 /*set API routing */
 add_action('rest_api_init', function () {
@@ -29,7 +30,6 @@ function quotes() {
 }
 
 function installer(){
-    
   global $wpdb;
   $charset_collate = $wpdb->get_charset_collate();
   $table_name = $wpdb->prefix . "quotereader";
